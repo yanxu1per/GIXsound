@@ -1,0 +1,9 @@
+# Python:
+*.py[cod]
+*.so
+*.egg
+*.egg-info
+
+
+#IOS：
+.DS_Store
