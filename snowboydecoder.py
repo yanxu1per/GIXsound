@@ -7,6 +7,7 @@ import time
 import wave
 import os
 import logging
+import numpy as np
 
 logging.basicConfig()
 logger = logging.getLogger("snowboy")
@@ -75,6 +76,15 @@ class HotwordDetector(object):
                  audio_gain=1):
 
         def audio_callback(in_data, frame_count, time_info, status):
+            audio_stream = [[],[],[],[]]          
+            for i in range(len(in_data)):
+                audio_stream[i%4].append(in_data[i])
+            #print(len(in_data))
+            #in_data = map(list,zip(*in_data))
+            #audio_data = np.fromstring(in_data, dtype=np.short)
+            #print(audio_data)
+            in_data = audio_stream[1]
+            #print(len(in_data))
             self.ring_buffer.extend(in_data)
             play_data = chr(0) * len(in_data)
             return play_data, pyaudio.paContinue
@@ -105,12 +115,14 @@ class HotwordDetector(object):
         self.ring_buffer = RingBuffer(
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
         self.audio = pyaudio.PyAudio()
+        print(self.detector.SampleRate())
         self.stream_in = self.audio.open(
             input=True, output=False,
             format=self.audio.get_format_from_width(
                 self.detector.BitsPerSample() / 8),
-            channels=self.detector.NumChannels(),
+            channels=4,
             rate=self.detector.SampleRate(),
+            input_device_index=6,
             frames_per_buffer=2048,
             stream_callback=audio_callback)
 
@@ -158,15 +170,22 @@ class HotwordDetector(object):
             if len(data) == 0:
                 time.sleep(sleep_time)
                 continue
-
+            #audio_stream = [[],[],[],[]]          
+            #for i in range(len(data)):
+            #    audio_stream[i%4].append(data[i])
+            #print('lendata:'+str(len(data)))
+            #print('lendata0:'+str(len(data[0])))
+            #data = audio_stream[0]
+            #print('lendata:'+str(len(data)))
+            #print('lendata0:'+str(len(data[0])))
             ans = self.detector.RunDetection(data)
             if ans == -1:
                 logger.warning("Error initializing streams or reading audio data")
             elif ans > 0:
-                message = "Keyword " + str(ans) + " detected at time: "
+                message = "HELP detected at time: "
                 message += time.strftime("%Y-%m-%d %H:%M:%S",
                                          time.localtime(time.time()))
-                logger.info(message)
+                print(message)
                 callback = detected_callback[ans-1]
                 if callback is not None:
                     callback()

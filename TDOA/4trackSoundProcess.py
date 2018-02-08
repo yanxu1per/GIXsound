@@ -64,6 +64,6 @@ def degree_from_TDOA(d2mic_dic,d = 0.06):
 # a.append(read("2018-02-06_20_28_47.wav"))
 # a.append(read("2018-02-06_20_28_48.wav"))
 
-td_array = time_difference_mics("2018-02-06_20_28_46.wav")
+td_array = time_difference_mics("2018-02-08_01_16_34.wav")
 print(degree_from_TDOA(closest_2mics_td(td_array)))
 print(td_array)
