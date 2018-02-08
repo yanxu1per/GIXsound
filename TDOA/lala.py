@@ -13,28 +13,6 @@ from soundetector import *
 import matplotlib.pyplot as plt
 from collections import deque
 
-def text_save(content,filename,mode='a'):
-    # Try to save a list variable in txt file.
-    file = open(filename,mode)
-    for i in range(len(content)):
-        file.write(str(content[i])+'\n')
-    file.close()
-    
-def text_read(filename):
-    # Try to read a txt file and return a list.Return [] if there was a mistake.
-    try:
-        file = open(filename,'r')
-    except IOError:
-        error = []
-        return error
-    content = file.readlines()
-
-    for i in range(len(content)):
-        content[i] = content[i][:len(content[i])-1]
-
-    file.close()
-    return content
-
 pattern = re.compile(r'.*\.wav')
 train_val = []
 train_label = []
@@ -59,6 +37,7 @@ for file in onlyfile:
         predict = predictor(file)
         #print(predict.filename)
         test_val = predict.time_difference_mics(predict.filename)
+        print(test_val)
         guess = predict.KNN_predict(test_val, train_val, train_label)
         print('guess:', guess)
 '''

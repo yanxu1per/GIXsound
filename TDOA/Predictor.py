@@ -44,9 +44,15 @@ class predictor(object):
                 time_differences_tracks.append(temp_td)
         return time_differences_tracks
         
-    def KNN_predict(self, sound, train_val, train_label):
-        prediction = 0
+    def KNN_predict(self, test_val, train_val, train_label):
         
-        return prediction
+        distance = []
+        test_val = np.array(test_val)
+        for val in train_val:
+            val = np.array(val)
+            #print(np.linalg.norm(test_val-val, ord=1))
+            distance.append(np.linalg.norm(test_val-val, ord=1))
+        
+        return train_label[distance.index(min(distance))]
         
         
