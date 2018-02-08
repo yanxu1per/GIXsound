@@ -21,6 +21,7 @@ def time_difference_mics(file):
 	time_differences_tracks = []
 	origin_file_data = read(file)
 	audio_data = np.array(origin_file_data[1],dtype=float)
+	print(audio_data[0])
 	track_number = len(audio_data[0])
 	audio_data = audio_data.T
 	track_length = len(audio_data[0])
