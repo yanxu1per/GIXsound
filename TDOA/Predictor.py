@@ -9,6 +9,7 @@ from scipy.io.wavfile import read
 import scipy
 import numpy as np
 import math
+import json
 
 class predictor(object):
     '''
@@ -16,11 +17,10 @@ class predictor(object):
     '''
 
     
-    def __init__(self, filename):
+    def __init__(self):
         '''
-        store value in self.sound
+        lalala
         '''
-        self.filename = filename
     
     def time_difference(self, a,b):
         af = scipy.fft(a)
@@ -36,6 +36,7 @@ class predictor(object):
         track_number = len(audio_data[0])
         audio_data = audio_data.T
         track_length = len(audio_data[0])
+        print(audio_data)
         for i in range(track_number):
             for j in range(i+1, track_number):
                 temp_td = self.time_difference(audio_data[i], audio_data[j])
@@ -43,6 +44,25 @@ class predictor(object):
                     temp_td = temp_td - track_length
                 time_differences_tracks.append(temp_td)
         return time_differences_tracks
+
+    def time_difference_mics_inputlist(self, audio_data):
+        time_differences_tracks = []
+        '''
+        track_number = len(audio_data[0])
+        audio_data = audio_data.T
+        track_length = len(audio_data[0])
+        '''
+        track_number = audio_data.shape[0]
+        track_length = audio_data.shape[1]
+        for i in range(track_number):
+            for j in range(i+1, track_number):
+                temp_td = self.time_difference(audio_data[i], audio_data[j])
+                # this makes we get the reasonable time difference
+                if (track_length - temp_td) < temp_td:
+                    temp_td = temp_td - track_length
+                time_differences_tracks.append(temp_td)
+        return time_differences_tracks
+        
         
     def KNN_predict(self, test_val, train_val, train_label):
         
@@ -54,5 +74,21 @@ class predictor(object):
             distance.append(np.linalg.norm(test_val-val, ord=1))
         
         return train_label[distance.index(min(distance))]
+
+    def readdata(self, train_val_name, train_labels_name):
+        train_val = []
+        train_labels = []
+
+        with open(train_val_name, 'r') as f:
+            data = f.readlines()
+            for line in data:
+                train_val.append(json.loads(line))
+
+        with open(train_labels_name, 'r') as f:
+            data = f.readlines()
+            for line in data:
+                train_labels.append(json.loads(line))
+
+        return train_val, train_labels
         
         

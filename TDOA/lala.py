@@ -10,9 +10,8 @@ from os import listdir, makedirs, chdir
 from os.path import join
 import re
 from soundetector import *
-import matplotlib.pyplot as plt
 from collections import deque
-
+'''
 pattern = re.compile(r'.*\.wav')
 train_val = []
 train_label = []
@@ -26,9 +25,10 @@ for i in range(8,38):
         predict = predictor(file)
         #print(predict.filename)
         features = predict.time_difference_mics(predict.filename)
-        train_val.append(features)
+        train_val.append([float(x)/11 for x in features])
         train_label.append(i*5)
         print(features, i*5)
+'''
 
 # test the KNN
 chdir(originaldir)
@@ -40,7 +40,12 @@ for file in onlyfile:
         print(test_val)
         guess = predict.KNN_predict(test_val, train_val, train_label)
         print('guess:', guess)
+
 '''
+
+'''
+chdir(originaldir)
+
 fileObject = open('train_val.txt', 'w')  
 for ip in train_val:  
     fileObject.write(str(ip))  
