@@ -21,6 +21,8 @@ def save_wave_file(filename, data):
     wf.writeframes(b"".join(data))
     wf.close()
     
+def print_callback(in_data, frame_count, time_info, status):
+    print(1)    
     
 NUM_SAMPLES = 2000 # size of PyAudio chunk
 SAMPLING_RATE = 44100 # sampling rate
@@ -30,7 +32,9 @@ SAVE_LENGTH = 3 # the smallest record length = SAVE_LENGTH*NUM_SAMPLES
 
 # audio stream on
 pa = PyAudio()
-stream = pa.open(format=paInt16, channels=4, rate=SAMPLING_RATE, input=True, input_device_index=6, frames_per_buffer=NUM_SAMPLES)
+stream = pa.open(format=paInt16, channels=4, rate=SAMPLING_RATE,
+                 input=True, input_device_index=6,
+                 frames_per_buffer=NUM_SAMPLES)
 
 
 save_count = 0

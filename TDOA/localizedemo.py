@@ -101,12 +101,12 @@ while savednum <= 5: # (t.now().minute-t.minute)<9:
             predict = predictor()
             test_val = predict.time_difference_mics_inputlist(sound_piece)
             sound_piece = np.array([])
-            #print(test_val)
+            print(test_val)
 
-            #test_val[:] = [float(x)/11 for x in test_val]
-            #guess = predict.KNN_predict(test_val, train_val, train_labels)
+            test_val[:] = [float(x)/11 for x in test_val]
+            guess = predict.KNN_predict(test_val, train_val, train_labels)
             savednum += 1
-            #print('guess:', guess)
+            print('guess:', guess)
     print(savednum)
             
 stream.close()
