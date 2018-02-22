@@ -1,3 +1,7 @@
+'''
+@function: create folders for different audio data
+'''
+
 from os import makedirs, path
 import sys
 

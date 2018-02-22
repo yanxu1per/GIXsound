@@ -1,3 +1,8 @@
+'''
+
+
+'''
+
 from scipy.io.wavfile import read
 import scipy
 import numpy as np
@@ -33,7 +38,8 @@ def time_difference_mics(file):
 			time_differences_tracks.append(temp_td)
 	return time_differences_tracks
 
-#only based on 4mics
+#only based on 4m
+#return the the first 2mics near to the sound source
 tdoa_array_index_dictionary = {'12':0, '13':1, '14':2, '23':3, '24':4, '34':5}
 def closest_2mics_td(tdoa_array):
 	d2mic_dic ={'mic1':0, 'mic2':0, 'td':0}
@@ -49,6 +55,7 @@ def closest_2mics_td(tdoa_array):
 
 Frequency = 44100
 SoundSpeed = 340
+#calculate the degree from different mics
 def degree_from_TDOA(d2mic_dic,d = 0.06):
 	mic1 = d2mic_dic['mic1']
 	mic2 = d2mic_dic['mic2']

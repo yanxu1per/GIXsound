@@ -1,6 +1,6 @@
-# Python:
+#Python:
+.pyc
+ServerClient/__pycache__/
 
-/ServerClient/__pycache__/
-
-#IOS：
+#IOS:
 .DS_Store
