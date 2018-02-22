@@ -1,6 +1,6 @@
 import socket  
 address = ('127.0.0.1',10000)#local  
-readdr = ("127.0.0.1",12000)#client 
+readdr = ("173.250.145.152",12000)#client 
 s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)  
   
 s.bind(address)  

@@ -91,4 +91,58 @@ class predictor(object):
 
         return train_val, train_labels
         
+    # This returns a three layer neural network with definable network topology
+    def neural_network(self, inputnum, hiddenneuralnum, outputnum):
+        syn0 = 2*np.random.random((inputnum, hiddenneuralnum)) - 1
+        syn1 = 2*np.random.random((hiddenneuralnum, outputnum)) - 1
+        net = {'hidden_layer': syn0, 'output_layer': syn1}
         
+        return net
+    
+    # This returns a trained neural network and plot the loss along the way
+    def train(self, net, epoch, activition_func, train_val, train_label):
+        net0 = net.copy()
+        train_val = np.array(train_val)
+        train_label = np.array([train_label]).T
+        print(train_val)
+        print(train_label)
+        # Batch Gradient Descent
+        for i in range(1, epoch):
+            x = np.dot(train_val, net0['hidden_layer'])
+            l1 = activition_func(x)
+            #print(l1.shape)
+            x = np.dot(l1, net0['output_layer'])
+            l2 = activition_func(x)
+            #print(l2.shape)
+            # backward propagation
+
+            l2_error = train_label - l2
+            # print loss every 100 epoch
+            if (i%200) == 0:
+                print(np.mean(np.abs(l2_error)))
+                
+            l2_delta = l2_error*(l2*(1-l2)) # gradient of matrix
+            #print(l2_delta.shape)
+            l1_delta = l2_delta.dot(net0['output_layer'].T)*(l1*(1-l1))
+            
+            net0['output_layer'] += l1.T.dot(l2_delta)
+            net0['hidden_layer'] += train_val.T.dot(l1_delta)
+            
+        return net0
+    
+    # The sigmoid function or you can write it in lambda func
+    def sigmoid(self, x):
+        return 1/(1+np.exp(-x))
+    
+    # The relu function
+    def relu(self, x):
+        return np.max(0, x) # needs correction!!! wrong
+
+    # This returns the guess based on trained net
+    def MLP_guess(self, net, test_val, activition_func):
+        x = np.dot(test_val, net['hidden_layer'])
+        l1 = activition_func(x)
+        x = np.dot(l1, net['output_layer'])
+        l2 = activition_func(x)
+        guess = l2
+        return guess
