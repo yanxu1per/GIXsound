@@ -1,5 +1,5 @@
 #Python:
-.pyc
+*.pyc
 ServerClient/__pycache__/
 
 #IOS:
