@@ -104,8 +104,6 @@ class predictor(object):
         net0 = net.copy()
         train_val = np.array(train_val)
         train_label = np.array([train_label]).T
-        print(train_val)
-        print(train_label)
         # Batch Gradient Descent
         for i in range(1, epoch):
             x = np.dot(train_val, net0['hidden_layer'])
@@ -145,4 +143,4 @@ class predictor(object):
         x = np.dot(l1, net['output_layer'])
         l2 = activition_func(x)
         guess = l2
-        return guess
+        return guess*190

@@ -12,7 +12,7 @@ import sys
 from os import listdir, makedirs, chdir
 from os.path import join
 import re
-from soundetector import *
+#from soundetector import *
 from collections import deque
 import numpy as np
 import random
@@ -52,9 +52,14 @@ for file in onlyfile:
 
 # prepare to train a MLP
 predict = predictor()
+'''
 train_val = [[0,0,1],[0,1,1],[1,0,1],[1,1,1]]
 train_labels = [0,1,1,0]
 '''
+
+train_val = []
+train_labels = []
+
 with open('train_val.txt', 'r') as f:
     data = f.readlines()
     for line in data:
@@ -65,22 +70,32 @@ with open('train_label.txt', 'r') as f:
     for line in data:
         train_labels.append(json.loads(line))
 
-# shuffle the training set, although itś batch gradient descent, its easier to get test set
+# shuffle the training set, although its batch gradient descent, its easier to get test set
 zipped = list(zip(train_val, train_labels))
 random.shuffle(zipped)
 unzipped = list(zip(*zipped))
 train_val = unzipped[0]
 train_labels = unzipped[1]
+print(len(train_labels))
 '''
-
 # get a net
-net = predict.neural_network(3,4,1)
+net = predict.neural_network(3,6,1)
 # training via BGD
-trained_net = predict.train(net, 20000, predict.sigmoid, train_val, train_labels)#train_val[:520], [x for x in train_labels[:520]])
+trained_net = predict.train(net, 50000, predict.sigmoid, train_val, train_labels)#train_val[:520], [x for x in train_labels[:520]])
 
 # test training result
 for i, test_val in enumerate(train_val):#train_val[520:]):
-        print('guess:%d, ground truth:%d' %(predict.MLP_guess(trained_net, test_val, predict.sigmoid), train_labels[i]))
+        print(predict.MLP_guess(trained_net, test_val, predict.sigmoid), train_labels[i])
+
+'''
+# get a net
+net = predict.neural_network(6,6,1)
+# training via BGD
+trained_net = predict.train(net, 5000, predict.sigmoid, train_val[:520], [float(x)/190 for x in train_labels[:520]])
+
+# test training result
+for i, test_val in enumerate(train_val[520:]):
+        print(predict.MLP_guess(trained_net, test_val, predict.sigmoid), train_labels[i])
 
 
 '''
