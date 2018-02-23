@@ -71,12 +71,14 @@ with open('train_label.txt', 'r') as f:
         train_labels.append(json.loads(line))
 
 # shuffle the training set, although its batch gradient descent, its easier to get test set
+'''
 zipped = list(zip(train_val, train_labels))
 random.shuffle(zipped)
 unzipped = list(zip(*zipped))
 train_val = unzipped[0]
 train_labels = unzipped[1]
-print(len(train_labels))
+print(train_labels)
+'''
 '''
 # get a net
 net = predict.neural_network(3,6,1)
@@ -88,14 +90,16 @@ for i, test_val in enumerate(train_val):#train_val[520:]):
         print(predict.MLP_guess(trained_net, test_val, predict.sigmoid), train_labels[i])
 
 '''
-# get a net
+# get a net and the function adds bias weights for you
 net = predict.neural_network(6,6,1)
 # training via BGD
-trained_net = predict.train(net, 5000, predict.sigmoid, train_val[:520], [float(x)/190 for x in train_labels[:520]])
+trained_net = predict.train(net, 10000, predict.sigmoid, train_val[:520], [float(x)/190 for x in train_labels[:520]])
 
 # test training result
-for i, test_val in enumerate(train_val[520:]):
-        print(predict.MLP_guess(trained_net, test_val, predict.sigmoid), train_labels[i])
+i=0
+while i<540:
+    print(predict.MLP_guess(trained_net, train_val[i], predict.sigmoid), train_labels[i])
+    i += 10
 
 
 '''
