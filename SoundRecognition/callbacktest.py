@@ -4,16 +4,42 @@ from datetime import datetime
 import wave
 import time
 from Predictor import *
-
+import snowboydecoder
+import sys
+import signal
+import time
+import pdb
+interrupted = False
 
 NUM_SAMPLES = 2000 # size of PyAudio chunk
 SAMPLING_RATE = 44100 # sampling rate
-LEVEL = 2000 # threshold for recording
+LEVEL = 3000 # threshold for recording
 COUNT_NUM = 260 # in the NUM_SAMPLE samples, if COUNT_NUM samples' value bigger than LEVEL, then record
 SAVE_LENGTH = 3 # the smallest record length = SAVE_LENGTH*NUM_SAMPLES
 
 save_count=0
 
+#my
+def signal_handler(signal, frame):
+    global interrupted
+    interrupted = True
+
+
+def interrupt_callback():
+    global interrupted
+    return interrupted
+
+if len(sys.argv) == 1:
+    print("Error: need to specify model name")
+    print("Usage: python demo.py your.model")
+    sys.exit(-1)
+
+model = sys.argv[1]
+
+
+
+detector = snowboydecoder.HotwordDetector(model, sensitivity=0.65)
+#myend
 
 train_val = []
 train_labels = []
@@ -92,24 +118,26 @@ while stream.is_active():
         predict = predictor()
         
         test_val = predict.time_difference_mics_inputlist(data)
-        if max(test_val)<=11 and min(test_val)>=-11:
-            '''
+        #print(test_val)
+        if max(test_val)<=11:
+            
             #sound4_list =[[],[],[],[]]
             # 
             sound4_list =[[],[],[],[]]            
-            print(len(sound_piece_wav))
+            #print(len(sound_piece_wav))
             for i in range(len(sound_piece_wav)):
                 sound4_list[i%4].extend(sound_piece_wav[i])
-            print(len(sound4_list[1]))
+            #print(len(sound4_list[1]))
             data=''.join(sound4_list[1])
+            
             #help recognition
-            '''
-            test_val[:] = [float(x)/11 for x in test_val]
-            features2 = predict.max_energy_mics_inputlist(data)
-            features2 = [float(x) for x in features2]
-            test_val.extend(features2)
-            guess = predict.KNN_predict(test_val, train_val, train_labels, K=10)
-            print('guess:', guess)
+            ans=detector.detect(data,
+               sleep_time=0.03)
+            print ans
+            if ans==1:
+                test_val[:] = [float(x)/11 for x in test_val]
+                guess = predict.KNN_predict(test_val, train_val, train_labels)
+                print('guess:', guess)
         else:
             print('Try again!')
         sound_piece = np.array([])

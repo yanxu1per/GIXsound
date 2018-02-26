@@ -1,3 +1,6 @@
+*.wav
+
+
 #Python:
 *.pyc
 ServerClient/__pycache__/

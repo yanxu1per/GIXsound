@@ -111,7 +111,7 @@ class HotwordDetector(object):
         sensitivity_str = ",".join([str(t) for t in sensitivity])
         if len(sensitivity) != 0:
             self.detector.SetSensitivity(sensitivity_str.encode())
-
+        '''
         self.ring_buffer = RingBuffer(
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
         self.audio = pyaudio.PyAudio()
@@ -125,7 +125,7 @@ class HotwordDetector(object):
             input_device_index=6,
             frames_per_buffer=2048,
             stream_callback=audio_callback)
-
+            '''
 
     def start(self, detected_callback=play_audio_file,
               interrupt_check=lambda: False,
@@ -191,7 +191,28 @@ class HotwordDetector(object):
                     callback()
 
         logger.debug("finished.")
+    def detect(self, data,
+              sleep_time=0.03):
+        """
+        Start the voice detector. For every `sleep_time` second it checks the
+        audio buffer for triggering keywords. If detected, then call
+        corresponding function in `detected_callback`, which can be a single
+        function (single model) or a list of callback functions (multiple
+        models). Every loop it also calls `interrupt_check` -- if it returns
+        True, then breaks from the loop and return.
 
+        :param detected_callback: a function or list of functions. The number of
+                                  items must match the number of models in
+                                  `decoder_model`.
+        :param interrupt_check: a function that returns True if the main loop
+                                needs to stop.
+        :param float sleep_time: how much time in second every loop waits.
+        :return: None
+        """
+        
+
+        ans = self.detector.RunDetection(data)
+        return ans
     def terminate(self):
         """
         Terminate audio stream. Users cannot call start() again to detect.
