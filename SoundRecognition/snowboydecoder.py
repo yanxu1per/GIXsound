@@ -111,7 +111,7 @@ class HotwordDetector(object):
         sensitivity_str = ",".join([str(t) for t in sensitivity])
         if len(sensitivity) != 0:
             self.detector.SetSensitivity(sensitivity_str.encode())
-        '''
+        
         self.ring_buffer = RingBuffer(
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
         self.audio = pyaudio.PyAudio()
@@ -125,8 +125,7 @@ class HotwordDetector(object):
             input_device_index=6,
             frames_per_buffer=2048,
             stream_callback=audio_callback)
-            '''
-
+            
     def start(self, detected_callback=play_audio_file,
               interrupt_check=lambda: False,
               sleep_time=0.03):

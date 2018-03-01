@@ -4,13 +4,13 @@ from datetime import datetime
 import wave
 import time
 from Predictor import *
-
+import socket
 
 NUM_SAMPLES = 2000 # size of PyAudio chunk
 SAMPLING_RATE = 44100 # sampling rate
 LEVEL = 2000 # threshold for recording
 COUNT_NUM = 260 # in the NUM_SAMPLE samples, if COUNT_NUM samples' value bigger than LEVEL, then record
-SAVE_LENGTH = 3 # the smallest record length = SAVE_LENGTH*NUM_SAMPLES
+SAVE_LENGTH = 1 # the smallest record length = SAVE_LENGTH*NUM_SAMPLES
 
 save_count=0
 
@@ -29,7 +29,15 @@ with open('train_label.txt', 'r') as f:
     for line in data:
         train_labels.append(json.loads(line))
 
+#socket
+obj = socket.socket()
 
+obj.connect(("192.168.0.100",8098))
+print('connected')
+ret_bytes = obj.recv(1024)
+ret_str = str(ret_bytes.encode("utf-8"))
+obj.sendall(bytes("PI1".encode("utf-8")))
+print(ret_str)
 
 class RingBuffer(object):
     """Ring buffer to hold audio from PortAudio"""
@@ -48,6 +56,15 @@ class RingBuffer(object):
 
 sound_piece = np.array([])
 sound_piece_wav = []
+
+def save_wave_file(filename, data):
+    wf = wave.open(filename, 'wb')
+    wf.setnchannels(4)
+    wf.setsampwidth(2)
+    wf.setframerate(SAMPLING_RATE)
+    wf.writeframes(b"".join(data))
+    wf.close()
+
 def print_callback(in_data, frame_count, time_info, status):
     #print(1)
     global possible_sound
@@ -84,7 +101,6 @@ stream = pa.open(format=paInt16, channels=4, rate=SAMPLING_RATE,
 
 stream.start_stream()
 while stream.is_active():
-    
     data = sound_piece.copy()   
     if len(data) > 0 and possible_sound:
         data.shape = -1,4
@@ -109,9 +125,11 @@ while stream.is_active():
             features2 = [float(x) for x in features2]
             test_val.extend(features2)
             guess = predict.KNN_predict(test_val, train_val, train_labels, K=10)
-            print('guess:', guess)
-        else:
-            print('Try again!')
+            # print('guess:', guess)
+            obj.sendall(bytes(("PI1_"+str(guess)).encode("utf-8")))
+            
+        #else:
+            #print('Try again!')
         sound_piece = np.array([])
         sound_piece_wav = []
     #else:      

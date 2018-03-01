@@ -26,8 +26,13 @@ class predictor(object):
         af = scipy.fft(a)
         bf = scipy.fft(b)
         c = scipy.ifft(bf * scipy.conj(af))
-        time_shift = np.argmax(abs(c))
+        # time_shift = np.argmax(abs(c))
+        time_shift = np.argmax(c)
         return time_shift
+
+    def max_energy(self, time_serie):
+        max_energy = sum(time_serie)
+        return max_energy
 
     def time_difference_mics(self, file):
         time_differences_tracks = []
@@ -36,7 +41,7 @@ class predictor(object):
         track_number = len(audio_data[0])
         audio_data = audio_data.T
         track_length = len(audio_data[0])
-        print(audio_data)
+        # print(audio_data)
         for i in range(track_number):
             for j in range(i+1, track_number):
                 temp_td = self.time_difference(audio_data[i], audio_data[j])
@@ -64,9 +69,47 @@ class predictor(object):
                 
                 time_differences_tracks.append(temp_td)
         return time_differences_tracks
+    def max_energy_mics(self, file):
+        max_energy_tracks = []
+        channel_energy = []
+        origin_file_data = read(file)
+        audio_data = np.array(origin_file_data[1],dtype=float)
+        track_number = len(audio_data[0])
+        audio_data = audio_data.T
+        track_length = len(audio_data[0])
+        # print(audio_data)
+        for i in range(track_number):
+            channel_energy.append(self.max_energy(abs(audio_data[i])))
         
+        for i in range(track_number):
+            for j in range(i+1, track_number):
+                # identify which sound is louder
+                energy_difference = channel_energy[i]>channel_energy[j]
+                
+                max_energy_tracks.append(energy_difference)
         
-    def KNN_predict(self, test_val, train_val, train_label):
+        return max_energy_tracks
+    
+    def max_energy_mics_inputlist(self, audio_data):
+        max_energy_tracks = []
+        channel_energy = []
+        
+        track_number = audio_data.shape[0]
+        track_length = audio_data.shape[1]
+        # print(audio_data)
+        for i in range(track_number):
+            channel_energy.append(self.max_energy(abs(audio_data[i])))
+        
+        for i in range(track_number):
+            for j in range(i+1, track_number):
+                # identify which sound is louder
+                energy_difference = channel_energy[i]>channel_energy[j]
+                
+                max_energy_tracks.append(energy_difference)
+        
+        return max_energy_tracks
+        
+    def KNN_predict(self, test_val, train_val, train_label, K=3):
         
         distance = []
         test_val = np.array(test_val)
@@ -80,9 +123,38 @@ class predictor(object):
         unzipped = zip(*zipped)
         sortednum = unzipped[0]
         correspondindex = unzipped[1]
-        
-        return [train_label[correspondindex[0]], train_label[correspondindex[1]], train_label[correspondindex[2]]]# train_label[distance.index(min(distance))]
 
+        guesses = [train_label[correspondindex[K]] for K in range(K)]
+        
+        final_guess = self.find_guess(guesses)
+        
+        return final_guess# train_label[distance.index(min(distance))]
+
+    def find_guess(self, guesses):
+        # initial guess dic with the first guess
+        guess_group = {'1':guesses[0]}
+        guess_num = {'1': 1}
+        total_classes = 1
+        
+        for i,guess in enumerate(guesses):
+            if i>0:
+                for j in range(1,total_classes+1):
+                    if abs((guess_group[str(j)]/guess_num[str(j)])-guess)<20:
+                        guess_group[str(j)] += guess
+                        guess_num[str(j)] += 1
+                    else:
+                        total_classes += 1
+                        guess_num[str(total_classes)] = 1
+                        guess_group[str(total_classes)] = guess
+
+        print guess_num
+
+        guess_index = max(guess_num.items(), key=lambda x:x[1])[0]            
+        final_guess = guess_group[guess_index]/guess_num[guess_index]
+        if total_classes>40:
+            final_guess = str(final_guess)+' degree maybe?'
+        return final_guess
+        
     def readdata(self, train_val_name, train_labels_name):
         train_val = []
         train_labels = []

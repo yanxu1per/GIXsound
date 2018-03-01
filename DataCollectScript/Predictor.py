@@ -151,6 +151,8 @@ class predictor(object):
 
         guess_index = max(guess_num.items(), key=lambda x:x[1])[0]            
         final_guess = guess_group[guess_index]/guess_num[guess_index]
+        if total_classes>40:
+            final_guess = str(final_guess)+' degree maybe?'
         return final_guess
         
     def readdata(self, train_val_name, train_labels_name):

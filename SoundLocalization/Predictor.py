@@ -85,7 +85,6 @@ class predictor(object):
             for j in range(i+1, track_number):
                 # identify which sound is louder
                 energy_difference = channel_energy[i]>channel_energy[j]
-                
                 max_energy_tracks.append(energy_difference)
         
         return max_energy_tracks
@@ -147,10 +146,12 @@ class predictor(object):
                         guess_num[str(total_classes)] = 1
                         guess_group[str(total_classes)] = guess
 
-        print guess_num
+        # print guess_num
 
         guess_index = max(guess_num.items(), key=lambda x:x[1])[0]            
         final_guess = guess_group[guess_index]/guess_num[guess_index]
+        if total_classes>40:
+            final_guess = str(final_guess)+'_degree maybe?'
         return final_guess
         
     def readdata(self, train_val_name, train_labels_name):
